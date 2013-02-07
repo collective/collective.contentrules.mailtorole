@@ -8,6 +8,7 @@ from zope import schema
 
 from plone.app.contentrules.browser.formhelper import AddForm, EditForm
 from plone.contentrules.rule.interfaces import IRuleElementData, IExecutable
+from plone.stringinterp.interfaces import IStringInterpolator
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
@@ -114,6 +115,9 @@ action or enter an email in the portal properties")
             source = '"%s" <%s>' % (from_name, from_address)
 
         obj = self.event.object
+
+        interpolator = IStringInterpolator(obj)
+
         event_title = safe_unicode(obj.Title())
         event_url = obj.absolute_url()
 
@@ -186,11 +190,8 @@ action or enter an email in the portal properties")
             if recipient_prop != None and len(recipient_prop) > 0:
                 recipients_mail.add(recipient_prop)
 
-        message = self.element.message.replace("${url}", event_url)
-        message = message.replace("${title}", event_title)
-
-        subject = self.element.subject.replace("${url}", event_url)
-        subject = subject.replace("${title}", event_title)
+        message = "\n%s" % interpolator(self.element.message)
+        subject = interpolator(self.element.subject)
 
         for recipient in recipients_mail:
             mailhost.secureSend(message.encode(email_charset), recipient, source,

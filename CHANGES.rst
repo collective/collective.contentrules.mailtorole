@@ -4,7 +4,7 @@ Changes
 1.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Updated message and title to stringinterpolation, like in plone.app.contentrules
 
 
 1.5 (2012-10-18)
@@ -38,7 +38,7 @@ Changes
 
 .. Note::
    Prior to version 1.3, the product was called
-   `collective.contentrules.mailtolocalrole`. 
+   `collective.contentrules.mailtolocalrole`.
    That product's history is included below for completeness.
 
 1.2 (2011-10-28)
