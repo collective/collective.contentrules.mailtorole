@@ -133,7 +133,9 @@ action or enter an email in the portal properties")
         # check for the acquired roles
         if self.element.acquired:
             sharing_page = obj.unrestrictedTraverse('@@sharing')
-            acquired_roles = sharing_page._inherited_roles() + sharing_page._borg_localroles()
+            acquired_roles = sharing_page._inherited_roles()
+            if hasattr(sharing_page, '_borg_localroles'):
+                acquired_roles += sharing_page._borg_localroles()
             acquired_users = [r[0] for r in acquired_roles
                               if self.element.role in r[1]]
             recipients.update(acquired_users)
