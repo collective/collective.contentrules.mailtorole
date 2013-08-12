@@ -4,13 +4,14 @@ Changes
 1.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- add borg_local roles
+  [maartenkling]
 
 1.6 (2013-02-14)
 ----------------
 
-- Updated message and title to stringinterpolation, like in plone.app.contentrules
+- Updated message and title to stringinterpolation,
+  like in plone.app.contentrules [kingel]
 
 
 1.5 (2012-10-18)
