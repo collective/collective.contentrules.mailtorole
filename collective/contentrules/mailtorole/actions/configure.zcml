@@ -22,7 +22,6 @@
      <adapter factory=".mail.MailActionExecutor" />
 
      <browser:page
-       zcml:condition="have plone-5"
        for="plone.app.contentrules.browser.interfaces.IRuleActionAdding"
        name="plone.actions.MailRole"
        class=".mail.MailRoleAddFormView"
@@ -30,26 +29,9 @@
        />
 
      <browser:page
-       zcml:condition="have plone-5"
        for="collective.contentrules.mailtorole.actions.mail.IMailRoleAction"
        name="edit"
        class=".mail.MailRoleEditFormView"
-       permission="plone.app.contentrules.ManageContentRules"
-       />
-
-    <browser:page
-       zcml:condition="not-have plone-5"
-       for="plone.app.contentrules.browser.interfaces.IRuleActionAdding"
-       name="plone.actions.MailRole"
-       class=".mail.MailRoleAddForm"
-       permission="plone.app.contentrules.ManageContentRules"
-       />
-
-     <browser:page
-       zcml:condition="not-have plone-5"
-       for="collective.contentrules.mailtorole.actions.mail.IMailRoleAction"
-       name="edit"
-       class=".mail.MailRoleEditForm"
        permission="plone.app.contentrules.ManageContentRules"
        />
 

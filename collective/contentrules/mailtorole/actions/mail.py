@@ -6,27 +6,33 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import PloneMessageFactory as _plone
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.MailHost.interfaces import IMailHost
+from Products.MailHost.MailHost import MailHostError
 from collective.contentrules.mailtorole import mailtoroleMessageFactory as _
 from plone import api
 from plone.contentrules.rule.interfaces import IRuleElementData, IExecutable
 from plone.stringinterp.interfaces import IStringInterpolator
+from smtplib import SMTPException
 from zope import schema
 from zope.component import adapts
 from zope.component import getUtility
 from zope.component.interfaces import ComponentLookupError
 from zope.interface import Interface, implements
 
-IS_PLONE_5 = api.env.plone_version().startswith('5')
-if IS_PLONE_5:
+from collective.contentrules.mailtorole import logger
+
+
+try:
     from plone.app.contentrules.actions import ActionAddForm as AddForm
-    from plone.app.contentrules.actions import ActionAddForm as EditForm
+    from plone.app.contentrules.actions import ActionEditForm as EditForm
     from plone.app.contentrules.browser.formhelper import \
         ContentRuleFormWrapper as FormWrapper
-else:
+    IS_PLONE_5 = True
+except ImportError:
     from zope.formlib import form
     from plone.app.contentrules.browser.formhelper import AddForm, EditForm
-    from plone.z3cform.layout import FormWrapper
     from plone.app.contentrules.browser.formhelper import _template
+    from plone.z3cform.layout import FormWrapper
+    IS_PLONE_5 = False
 
 
 class IMailRoleAction(Interface):
@@ -214,12 +220,17 @@ action or enter an email in the portal properties")
         # of first line as header.
         message = "\n%s" % interpolator(self.element.message)
         subject = interpolator(self.element.subject)
-
         for recipient in recipients_mail:
-            mailhost.secureSend(
-                message, recipient, source, subject=subject,
-                charset='utf-8'
-            )
+            try:
+                mailhost.send(message, recipient, source,
+                              subject=subject, charset='utf-8',
+                              msg_type="text/html"
+                              )
+                # logger.info("{} email sent to {}".format(recipient, subject))
+            except (MailHostError, SMTPException):
+                logger.exception(
+                    'mail error: Attempt to send mail in content rule failed'
+                )
         return True
 
 
@@ -234,17 +245,18 @@ class MailRoleAddForm(AddForm):
                     u"a role on the object")
     form_name = _plone(u"Configure element")
     Type = MailRoleAction
+
     template = ViewPageTemplateFile('templates/mail.pt')
 
     if not IS_PLONE_5:
         form_fields = form.FormFields(IMailRoleAction)
 
-    def create(self, data):
-        if IS_PLONE_5:
-            return super(MailRoleAddForm, self).create(data)
-        a = MailRoleAction()
-        form.applyChanges(a, self.form_fields, data)
-        return a
+        def create(self, data):
+            if IS_PLONE_5:
+                return super(MailRoleAddForm, self).create(data)
+            a = MailRoleAction()
+            form.applyChanges(a, self.form_fields, data)
+            return a
 
 
 class MailRoleAddFormView(FormWrapper):
