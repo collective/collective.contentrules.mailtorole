@@ -206,7 +206,7 @@ action or enter an email in the portal properties")
         subject = interpolator(self.element.subject)
 
         for recipient in recipients_mail:
-            mailhost.secureSend(
+            mailhost.send(
                 message, recipient, source, subject=subject,
                 charset='utf-8'
             )
