@@ -226,9 +226,6 @@ class MailRoleAddForm(AddForm):
     Type = MailRoleAction
     template = ViewPageTemplateFile('templates/mail.pt')
 
-    def create(self, data):
-        return super(MailRoleAddForm, self).create(data)
-
 
 class MailRoleAddFormView(FormWrapper):
     form = MailRoleAddForm
