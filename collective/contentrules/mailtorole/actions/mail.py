@@ -13,20 +13,14 @@ from plone.stringinterp.interfaces import IStringInterpolator
 from zope import schema
 from zope.component import adapts
 from zope.component import getUtility
-from zope.component.interfaces import ComponentLookupError
-from zope.interface import Interface, implements
+from zope.interface import Interface
+from zope.interface import implementer
+from zope.interface.interfaces import ComponentLookupError
 
-IS_PLONE_5 = api.env.plone_version().startswith('5')
-if IS_PLONE_5:
-    from plone.app.contentrules.actions import ActionAddForm as AddForm
-    from plone.app.contentrules.actions import ActionAddForm as EditForm
-    from plone.app.contentrules.browser.formhelper import \
-        ContentRuleFormWrapper as FormWrapper
-else:
-    from zope.formlib import form
-    from plone.app.contentrules.browser.formhelper import AddForm, EditForm
-    from plone.z3cform.layout import FormWrapper
-    from plone.app.contentrules.browser.formhelper import _template
+from plone.app.contentrules.actions import ActionAddForm as AddForm
+from plone.app.contentrules.actions import ActionAddForm as EditForm
+from plone.app.contentrules.browser.formhelper import \
+    ContentRuleFormWrapper as FormWrapper
 
 
 class IMailRoleAction(Interface):
@@ -70,11 +64,11 @@ URL of the newly created item."),
         required=True)
 
 
+@implementer(IMailRoleAction, IRuleElementData)
 class MailRoleAction(SimpleItem):
     """
     The implementation of the action defined before
     """
-    implements(IMailRoleAction, IRuleElementData)
 
     subject = u''
     source = u''
@@ -91,10 +85,10 @@ class MailRoleAction(SimpleItem):
                  mapping=dict(role=self.role))
 
 
+@implementer(IExecutable)
 class MailActionExecutor(object):
     """The executor for this action.
     """
-    implements(IExecutable)
     adapts(Interface, IMailRoleAction, Interface)
 
     def __init__(self, context, element, event):
@@ -118,18 +112,14 @@ class MailActionExecutor(object):
         if not source:
             # no source provided, looking for the site wide from email
             # address
-            from_address = portal.getProperty('email_from_address')
-            if IS_PLONE_5:
-                from_address = api.portal.get_registry_record(
-                    'plone.email_from_address')
+            from_address = api.portal.get_registry_record(
+                'plone.email_from_address')
             if not from_address:
                 raise ValueError("You must provide a source address for this \
 action or enter an email in the portal properties")
 
-            from_name = portal.getProperty('email_from_name', '').strip('"')
-            if IS_PLONE_5:
-                from_name = api.portal.get_registry_record(
-                    'plone.email_from_name')
+            from_name = api.portal.get_registry_record(
+                'plone.email_from_name')
             source = '"%s" <%s>' % (from_name, from_address)
 
         obj = self.event.object
@@ -216,7 +206,7 @@ action or enter an email in the portal properties")
         subject = interpolator(self.element.subject)
 
         for recipient in recipients_mail:
-            mailhost.secureSend(
+            mailhost.send(
                 message, recipient, source, subject=subject,
                 charset='utf-8'
             )
@@ -236,16 +226,6 @@ class MailRoleAddForm(AddForm):
     Type = MailRoleAction
     template = ViewPageTemplateFile('templates/mail.pt')
 
-    if not IS_PLONE_5:
-        form_fields = form.FormFields(IMailRoleAction)
-
-    def create(self, data):
-        if IS_PLONE_5:
-            return super(MailRoleAddForm, self).create(data)
-        a = MailRoleAction()
-        form.applyChanges(a, self.form_fields, data)
-        return a
-
 
 class MailRoleAddFormView(FormWrapper):
     form = MailRoleAddForm
@@ -261,8 +241,6 @@ class MailRoleEditForm(EditForm):
                          u"a role on the object")
     form_name = _plone(u"Configure element")
     template = ViewPageTemplateFile('templates/mail.pt')
-    if not IS_PLONE_5:
-        form_fields = form.FormFields(IMailRoleAction)
 
 
 class MailRoleEditFormView(FormWrapper):

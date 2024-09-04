@@ -6,9 +6,7 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     >
 
-    <include package="Products.CMFCore" file="permissions.zcml"
-           xmlns:zcml="http://namespaces.zope.org/zcml"
-           zcml:condition="have plone-41" />
+    <include package="Products.CMFCore" file="permissions.zcml" />
     <include package="plone.contentrules" />
     <include package="plone.contentrules" file="meta.zcml" />
 
@@ -22,7 +20,6 @@
      <adapter factory=".mail.MailActionExecutor" />
 
      <browser:page
-       zcml:condition="have plone-5"
        for="plone.app.contentrules.browser.interfaces.IRuleActionAdding"
        name="plone.actions.MailRole"
        class=".mail.MailRoleAddFormView"
@@ -30,26 +27,9 @@
        />
 
      <browser:page
-       zcml:condition="have plone-5"
        for="collective.contentrules.mailtorole.actions.mail.IMailRoleAction"
        name="edit"
        class=".mail.MailRoleEditFormView"
-       permission="plone.app.contentrules.ManageContentRules"
-       />
-
-    <browser:page
-       zcml:condition="not-have plone-5"
-       for="plone.app.contentrules.browser.interfaces.IRuleActionAdding"
-       name="plone.actions.MailRole"
-       class=".mail.MailRoleAddForm"
-       permission="plone.app.contentrules.ManageContentRules"
-       />
-
-     <browser:page
-       zcml:condition="not-have plone-5"
-       for="collective.contentrules.mailtorole.actions.mail.IMailRoleAction"
-       name="edit"
-       class=".mail.MailRoleEditForm"
        permission="plone.app.contentrules.ManageContentRules"
        />
 
@@ -58,7 +38,7 @@
          title="Send email to role"
          description="Send an email on the triggering object"
          for="*"
-         event="zope.component.interfaces.IObjectEvent"
+         event="zope.interface.interfaces.IObjectEvent"
          addview="plone.actions.MailRole"
          editview="edit"
          schema=".mail.IMailRoleAction"

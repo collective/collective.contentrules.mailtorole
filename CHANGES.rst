@@ -4,6 +4,12 @@ Changes
 2.0 (unreleased)
 ----------------
 
+- Plone 6 support.
+  [frapell]
+
+- Drop Plone 4 support.
+  [frapell]
+
 - List all portal roles, not just sharing tab roles.
   Fixes `issue 2 <https://github.com/collective/collective.contentrules.mailtorole/issues/2>`_.
   [afrepues, instification]

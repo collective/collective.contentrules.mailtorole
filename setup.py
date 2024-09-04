@@ -9,8 +9,8 @@ setup(name='collective.contentrules.mailtorole',
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           "Framework :: Plone",
-          "Framework :: Plone :: 4.3",
           "Framework :: Plone :: 5.0",
+          "Framework :: Plone :: 6.0",
           "Programming Language :: Python",
           "Topic :: Software Development :: Libraries :: Python Modules",
           ],
